@@ -24,6 +24,20 @@ export default class Collapsible extends Component {
     easing: 'easeOutCubic',
   };
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { collapsed } = nextProps;
+
+    const newState = {
+      collapsed,
+    };
+
+    if (!collapsed && !prevState.collapsed) {
+      newState.measured = false;
+    }
+
+    return newState;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -35,24 +49,13 @@ export default class Collapsible extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.collapsed && !this.props.collapsed) {
-      this.setState({ measured: false }, () =>
-        this._componentWillReceiveProps(nextProps)
-      );
-    } else {
-      this._componentWillReceiveProps(nextProps);
-    }
-  }
+  componentDidUpdate(prevProps) {
+    const { collapsed, collapsedHeight } = this.props;
 
-  _componentWillReceiveProps(nextProps) {
-    if (nextProps.collapsed !== this.props.collapsed) {
-      this._toggleCollapsed(nextProps.collapsed);
-    } else if (
-      nextProps.collapsed &&
-      nextProps.collapsedHeight !== this.props.collapsedHeight
-    ) {
-      this.state.height.setValue(nextProps.collapsedHeight);
+    if (collapsed !== this.state.collapsed) {
+      this._toggleCollapsed(collapsed);
+    } else if (collapsed && collapsedHeight !== prevProps.collapsedHeight) {
+      this.state.height.setValue(collapsedHeight);
     }
   }
 
